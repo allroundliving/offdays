@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "City Directory",
   description:
-    "Lagos via OffDays — a living directory of food, wellness and essential-service spots, priced, verified and flagged when stale.",
+    "Your City Figured Out — Abuja via OffDays: a living directory of food, wellness and essential-service spots, priced, verified and flagged when stale.",
 };
 
 export default function CityPage() {
@@ -33,11 +33,15 @@ export default function CityPage() {
           </Link>
         </div>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-          Lagos · The living city directory
+          Your City Figured Out · Abuja
         </p>
         <h1 className="font-display text-5xl font-bold leading-[0.95] tracking-tight text-ink md:text-6xl">
           The Living City Directory
         </h1>
+        <p className="max-w-xl text-sm leading-6 text-muted">
+          New to the city or recalibrating it — this is the working encyclopedia:
+          what makes each spot notable, how to get there, and who to call.
+        </p>
         <div className="flex flex-wrap gap-x-8 gap-y-3">
           <p className="text-sm text-muted">
             <span className="mr-2 font-semibold text-ink">{CITY_VENUES.length}</span>

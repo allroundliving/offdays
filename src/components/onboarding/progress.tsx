@@ -1,4 +1,4 @@
-const STEPS = ["City", "Persona", "Budget", "Map"];
+const STEPS = ["Persona", "Welcome"];
 
 export function ProgressSteps({ current }: { current: number }) {
   return (

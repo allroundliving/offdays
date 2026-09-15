@@ -1,5 +1,7 @@
 # OffDays
 
+**Your City Figured Out.**
+
 A standalone lifestyle discovery app: **budget-first curated weekend guides** and a **living city
 directory** of real, verified spots.
 
@@ -8,6 +10,8 @@ directory** of real, verified spots.
 - Weekend guides that lead with real prices — cost is the headline, not the fine print.
 - A living directory of real venues meant to be verified, updated, and de-duplicated over time —
   never static marketing copy.
+- Launch locked to a single city (Abuja) while the directory is seeded; the city selector is
+  bypassed until more cities go live.
 - Deliberately independent from the WCIADH project in the parent repository: no shared code,
   pricing models, branding, or API contracts.
 

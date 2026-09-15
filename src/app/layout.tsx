@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s — OffDays",
   },
   description:
-    "Budget-first curated weekend guides and a living city directory — real spots, real prices, zero guesswork.",
+    "Your City Figured Out — budget-first curated weekend guides and a living city directory: real spots, real prices, zero guesswork.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

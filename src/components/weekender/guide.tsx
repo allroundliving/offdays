@@ -1,73 +1,152 @@
-import type { WeekenderPersona, WeekenderStop, BudgetSplit } from "@/lib/weekender";
+import type { VenueCategory, WeekenderPersona, WeekenderStop } from "@/lib/weekender";
 import {
-  formatMoney,
   formatDwell,
-  totalDwell,
-  groupStops,
+  formatMoney,
   getDropWeek,
+  groupStops,
+  isWeekenderOpen,
+  slotLabel,
+  totalDwell,
+  totalTransportSpend,
+  totalVenueSpend,
 } from "@/lib/weekender";
 import { PersonaSwitcher } from "./persona-switcher";
 import { ShareButton } from "./share-button";
 
-const SPLIT_META: { key: keyof BudgetSplit; label: string; className: string }[] = [
-  { key: "stop", label: "Stops & entry", className: "bg-accent" },
-  { key: "food", label: "Food", className: "bg-ink" },
-  { key: "transport", label: "Transport", className: "bg-accent/60" },
-  { key: "buffer", label: "Buffer", className: "bg-muted/40" },
-];
+const CATEGORY_ACCENT: Record<VenueCategory, string> = {
+  food: "food",
+  drinks: "accent",
+  culture: "essential",
+  nightlife: "accent",
+  outdoor: "wellness",
+  retail: "essential",
+  wellbeing: "wellness",
+};
 
-function BudgetBand({ persona }: { persona: WeekenderPersona }) {
-  const splitTotal =
-    persona.split.stop + persona.split.food + persona.split.transport + persona.split.buffer;
+function StopPhoto({ stop, photoId }: { stop: WeekenderStop; photoId: string }) {
+  const accent = CATEGORY_ACCENT[stop.category];
   return (
-    <section className="border-y-2 border-ink bg-paper py-8" aria-label="Stated budget range">
+    <svg
+      viewBox="0 0 320 150"
+      role="img"
+      aria-label={`${stop.venue}, ${stop.neighborhood}`}
+      className="h-36 w-full rounded-xl border border-ink/10"
+    >
+      <defs>
+        <linearGradient id={photoId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={`var(--${accent})`} stopOpacity="0.55" />
+          <stop offset="1" stopColor={`var(--${accent})`} stopOpacity="0.1" />
+        </linearGradient>
+      </defs>
+      <rect width="320" height="150" fill={`url(#${photoId})`} />
+      <circle cx="282" cy="30" r="26" className="fill-paper/25" aria-hidden="true" />
+      <circle cx="38" cy="124" r="14" className="fill-paper/20" aria-hidden="true" />
+      <text
+        x="22"
+        y="118"
+        fontSize="88"
+        fontFamily="Georgia, serif"
+        fontWeight="bold"
+        className="fill-paper/80"
+        aria-hidden="true"
+      >
+        {stop.venue.charAt(0)}
+      </text>
+      <text x="112" y="70" fontSize="22" fontWeight="bold" fontFamily="Georgia, serif" fill="currentColor">
+        {stop.venue}
+      </text>
+      <text x="112" y="94" fontSize="13" className="fill-muted">
+        {stop.neighborhood} · {stop.category}
+      </text>
+      <text x="112" y="118" fontSize="12" className="fill-muted">
+        vetted · trust {stop.trustScore}
+      </text>
+    </svg>
+  );
+}
+
+function AvailabilityRibbon() {
+  const week = getDropWeek();
+  const open = isWeekenderOpen(new Date());
+  return (
+    <p className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full border border-accent/40 bg-accent-soft px-4 py-2 text-xs font-medium text-ink">
+      <span className="flex items-center gap-1.5">
+        <span className={`relative flex h-2 w-2`} aria-hidden="true">
+          {open && (
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+          )}
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+        </span>
+        {open ? "Open now" : "Back Wednesday"}
+      </span>
+      <span className="text-muted">·</span>
+      <span>
+        The Weekender runs Wednesdays → Sunday nights · planning ahead for{" "}
+        <span className="font-semibold text-ink">{week.fridayLabel}</span> →{" "}
+        <span className="font-semibold text-ink">{week.sundayLabel}</span>
+      </span>
+    </p>
+  );
+}
+
+function MoneyBand({ persona }: { persona: WeekenderPersona }) {
+  const venueSpend = totalVenueSpend(persona.stops);
+  const transportSpend = totalTransportSpend(persona.stops);
+  const currency = persona.currency;
+  return (
+    <section className="border-y-2 border-ink bg-paper py-8" aria-label="Weekend budget">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
             Stated budget — all-in
           </p>
           <p className="font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
-            {formatMoney(persona.budgetMin, persona.currency)}
+            {formatMoney(persona.budgetMin, currency)}
             <span className="mx-2 text-muted">–</span>
-            {formatMoney(persona.budgetMax, persona.currency)}
+            {formatMoney(persona.budgetMax, currency)}
           </p>
           <p className="mt-2 text-sm text-muted">
-            {persona.label} lens · 2 days · {persona.stops.length} vetted stops
+            {persona.label} lens · {persona.stops.length} vetted stops
           </p>
         </div>
         <p className="max-w-xs text-sm leading-6 text-muted">
-          The breakdown assumes the top of the range. Anything left over becomes tomorrow&apos;s
-          dinner — that&apos;s the point.
+          Every stop below lists its Venue Spend — the actual on-site expense — and a
+          separate Transport / Bolt estimate. Nothing hidden, nothing folded into a
+          vague “misc”.
         </p>
       </div>
-      <div className="mt-6">
-        <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted/20">
-          {SPLIT_META.map((row) => {
-            const width = persona.split[row.key] / splitTotal;
-            return width > 0 ? (
-              <div key={row.key} className={row.className} style={{ width: `${width * 100}%` }} />
-            ) : null;
-          })}
+      <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-stretch md:gap-5">
+        <div className="flex flex-1 flex-col justify-between gap-2 rounded-xl border border-ink/10 bg-foreground/5 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+            Venue Spend
+          </p>
+          <div>
+            <p className="font-display text-3xl font-bold tracking-tight text-ink">
+              {formatMoney(venueSpend, currency)}
+            </p>
+            <p className="mt-1 text-xs text-muted">actual on-site expense across all stops</p>
+          </div>
         </div>
-        <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
-          {SPLIT_META.map((row) => (
-            <li key={row.key} className="flex items-center gap-2 text-xs text-muted">
-              <span className={`inline-block h-2 w-2 rounded-full ${row.className}`} />
-              {row.label}{" "}
-              <span className="font-medium text-ink">
-                {formatMoney(persona.split[row.key], persona.currency)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-1 flex-col justify-between gap-2 rounded-xl border border-ink/10 bg-foreground/5 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+            Transport / Bolt
+          </p>
+          <div>
+            <p className="font-display text-3xl font-bold tracking-tight text-ink">
+              {formatMoney(transportSpend, currency)}
+            </p>
+            <p className="mt-1 text-xs text-muted">estimated rides between stops</p>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
 function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
+  const week = getDropWeek();
   return (
-    <li className="group flex gap-4 md:gap-6">
+    <li className="flex gap-4 md:gap-6">
       <div className="flex w-10 shrink-0 flex-col items-center">
         <span className="font-display text-2xl font-bold leading-none text-ink/70 md:text-3xl">
           {String(index + 1).padStart(2, "0")}
@@ -75,41 +154,55 @@ function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
         <span className="mt-3 h-full w-px bg-ink/15" aria-hidden="true" />
       </div>
       <article className="mb-8 flex-1 rounded-xl border border-ink/10 bg-foreground/5 p-5 md:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-              {stop.category} · {stop.neighborhood}
-            </p>
-            <h3 className="mt-1 font-display text-2xl font-bold leading-tight text-ink">
-              {stop.venue}
-            </h3>
-          </div>
-          <p className="rounded-full border border-ink/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-            Vetted · {stop.trustScore}
-          </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+          {stop.category} · {stop.neighborhood}
+        </p>
+        <h3 className="mt-1 font-display text-2xl font-bold leading-tight text-ink">
+          {stop.venue}
+        </h3>
+        <p className="mt-1 text-sm font-semibold text-accent">{slotLabel(stop, week)}</p>
+
+        <div className="mt-4">
+          <StopPhoto stop={stop} photoId={`photo-${index}`} />
         </div>
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink">
-          <p>
-            <span className="mr-1.5 text-muted">Dwell</span>
-            {formatDwell(stop.dwellMinutes)}
+
+        <p className="mt-4 text-[15px] leading-6 text-ink/90">{stop.why}</p>
+
+        <div className="mt-3 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            Why this spot fits
           </p>
-          <p>
-            <span className="mr-1.5 text-muted">Price</span>
-            {stop.priceNote}
-          </p>
+          <p className="mt-1 text-sm leading-6 text-ink/90">{stop.fits}</p>
         </div>
-        <p className="mt-3 text-[15px] leading-6 text-ink/90">{stop.why}</p>
-        <p className="mt-2 text-sm leading-6 text-muted">
+
+        <p className="mt-3 text-sm leading-6 text-muted">
           <span className="mr-1.5 font-semibold uppercase tracking-wider text-accent">Tip</span>
           {stop.tip}
         </p>
+
+        <div className="mt-4 grid gap-3 border-t border-ink/10 pt-4 sm:grid-cols-[1fr_1fr_auto] sm:items-center">
+          <p className="text-sm text-ink">
+            <span className="mr-1.5 text-muted">Dwell</span>
+            {formatDwell(stop.dwellMinutes)}
+            <span className="mx-1.5 text-muted">·</span>
+            {stop.priceNote}
+          </p>
+          <p className="text-sm text-ink">
+            <span className="mr-1.5 text-muted">Venue Spend</span>
+            <span className="font-semibold">{formatMoney(stop.venueSpend, "NGN")}</span>
+          </p>
+          <p className="text-sm text-ink">
+            <span className="mr-1.5 text-muted">Transport / Bolt</span>
+            <span className="font-semibold">{formatMoney(stop.transportSpend, "NGN")}</span>
+          </p>
+        </div>
       </article>
     </li>
   );
 }
 
 function SharePoster({ persona }: { persona: WeekenderPersona }) {
-  const { expiresLabel } = getDropWeek();
+  const week = getDropWeek();
   const budget = `${formatMoney(persona.budgetMin, persona.currency)}–${formatMoney(
     persona.budgetMax,
     persona.currency,
@@ -121,14 +214,14 @@ function SharePoster({ persona }: { persona: WeekenderPersona }) {
     >
       <div className="rounded-xl border-2 border-dashed border-ink/25 bg-foreground/5 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          OffDays Weekender · This week&apos;s drop
+          OffDays · The Weekender · Abuja
         </p>
         <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl">
           {persona.title}
         </p>
         <p className="mt-2 text-sm text-muted">
-          {budget} · {persona.stops.length} stops · expires Sunday {expiresLabel} · budget first,
-          always.
+          {budget} · {persona.stops.length} stops · planning {week.fridayLabel} →{" "}
+          {week.sundayLabel} · your city figured out.
         </p>
       </div>
       <ShareButton
@@ -145,17 +238,16 @@ function SharePoster({ persona }: { persona: WeekenderPersona }) {
 export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
   const days = groupStops(persona.stops);
   const mins = totalDwell(persona.stops);
-  const { expiresLabel } = getDropWeek();
 
   return (
     <article className="flex flex-col gap-10">
       <section className="flex flex-col gap-10 border-b-2 border-ink pb-10 pt-8">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            OffDays Weekender · Lagos
+            OffDays · The Weekender · Abuja
           </p>
           <p className="rounded-full border border-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
-            Expires Sun {expiresLabel}
+            {persona.label}
           </p>
         </div>
         <header className="max-w-2xl">
@@ -182,29 +274,28 @@ export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
           </p>
         </div>
         <PersonaSwitcher active={persona.slug} />
+        <AvailabilityRibbon />
       </section>
 
-      <BudgetBand persona={persona} />
+      <MoneyBand persona={persona} />
 
-      <section aria-label="Itinerary">
+      <section aria-label="Scheduled itinerary">
         {days.map((day) => (
           <div key={day.day} className="mb-10">
             <h2 className="mb-6 flex items-center gap-4">
               <span className="font-display text-3xl font-bold tracking-tight text-ink">
-                {day.day}
+                {day.label}
               </span>
               <span className="h-px flex-1 bg-ink/15" aria-hidden="true" />
             </h2>
             <ol>
-              {day.slots.flatMap((slot) =>
-                slot.stops.map((stop) => (
-                  <StopCard
-                    key={stop.venue}
-                    stop={stop}
-                    index={persona.stops.indexOf(stop)}
-                  />
-                )),
-              )}
+              {day.stops.map((stop) => (
+                <StopCard
+                  key={stop.venue}
+                  stop={stop}
+                  index={persona.stops.indexOf(stop)}
+                />
+              ))}
             </ol>
           </div>
         ))}

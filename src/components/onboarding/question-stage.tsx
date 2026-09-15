@@ -11,6 +11,7 @@ export interface StageOption {
 
 export function QuestionStage({
   step,
+  total = 3,
   title,
   kicker,
   body,
@@ -19,6 +20,7 @@ export function QuestionStage({
   skipLabel,
 }: {
   step: number;
+  total?: number;
   title: string;
   kicker: string;
   body?: string;
@@ -30,7 +32,7 @@ export function QuestionStage({
     <section className="mt-6 flex flex-col gap-4" aria-live="polite">
       <div className="flex flex-col gap-1">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-          Step {step} of 3 · {kicker}
+          Step {step} of {total} · {kicker}
         </p>
         <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-ink md:text-5xl">
           {title}

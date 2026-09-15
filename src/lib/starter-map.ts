@@ -17,13 +17,13 @@ export interface MapZone {
 }
 
 export const MAP_ZONES: MapZone[] = [
-  { id: "ikeja", name: "Ikeja", x: 2, y: 2, w: 30, h: 14 },
-  { id: "yaba", name: "Yaba", x: 34, y: 2, w: 32, h: 14 },
-  { id: "surulere", name: "Surulere", x: 2, y: 18, w: 30, h: 14 },
-  { id: "lekki", name: "Lekki", x: 34, y: 18, w: 32, h: 14 },
-  { id: "lagos-island", name: "Lagos Island", x: 6, y: 36, w: 22, h: 14 },
-  { id: "ikoyi", name: "Ikoyi", x: 30, y: 36, w: 22, h: 14 },
-  { id: "victoria-island", name: "Victoria Island", x: 54, y: 36, w: 24, h: 14 },
+  { id: "wuse", name: "Wuse", x: 2, y: 2, w: 30, h: 14 },
+  { id: "maitama", name: "Maitama", x: 34, y: 2, w: 32, h: 14 },
+  { id: "garki", name: "Garki", x: 2, y: 18, w: 30, h: 14 },
+  { id: "asokoro", name: "Asokoro", x: 34, y: 18, w: 32, h: 14 },
+  { id: "central", name: "Central District", x: 6, y: 36, w: 22, h: 14 },
+  { id: "utako", name: "Utako", x: 30, y: 36, w: 22, h: 14 },
+  { id: "jabi", name: "Jabi", x: 54, y: 36, w: 24, h: 14 },
 ];
 
 export interface MapPin {

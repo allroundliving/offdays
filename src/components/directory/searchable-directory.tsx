@@ -61,7 +61,7 @@ export function SearchableDirectory({ venues }: { venues: Venue[] }) {
           })}
         </div>
         <p className="mt-3 text-xs text-muted">
-          {results.length} of {venues.length} venues in Lagos
+          {results.length} of {venues.length} venues in Abuja
         </p>
       </div>
 

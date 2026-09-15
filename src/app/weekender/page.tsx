@@ -13,7 +13,7 @@ export async function generateMetadata({
   const p = getPersona(slug);
   return {
     title: p.title,
-    description: `${p.title} — ${p.tagline} Stated budget ${formatMoney(
+    description: `Your City Figured Out — ${p.title}. ${p.tagline} Stated budget ${formatMoney(
       p.budgetMin,
       p.currency,
     )} to ${formatMoney(p.budgetMax, p.currency)}, ${p.stops.length} vetted stops.`,
