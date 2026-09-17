@@ -1,16 +1,17 @@
-import type { VenueCategory, WeekenderPersona, WeekenderStop } from "@/lib/weekender";
+import type { VenueCategory, WeekenderPersona, WeekenderStop, BudgetTierId } from "@/lib/weekender";
 import {
   formatDwell,
   formatMoney,
   getDropWeek,
+  getTierPlan,
   groupStops,
-  isWeekenderOpen,
   slotLabel,
   totalDwell,
   totalTransportSpend,
   totalVenueSpend,
 } from "@/lib/weekender";
 import { PersonaSwitcher } from "./persona-switcher";
+import { TierSwitcher } from "./tier-switcher";
 import { ShareButton } from "./share-button";
 
 const CATEGORY_ACCENT: Record<VenueCategory, string> = {
@@ -65,54 +66,36 @@ function StopPhoto({ stop, photoId }: { stop: WeekenderStop; photoId: string }) 
   );
 }
 
-function AvailabilityRibbon() {
-  const week = getDropWeek();
-  const open = isWeekenderOpen(new Date());
-  return (
-    <p className="mt-6 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-full border border-accent/40 bg-accent-soft px-4 py-2 text-xs font-medium text-ink">
-      <span className="flex items-center gap-1.5">
-        <span className={`relative flex h-2 w-2`} aria-hidden="true">
-          {open && (
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-          )}
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-        </span>
-        {open ? "Open now" : "Back Wednesday"}
-      </span>
-      <span className="text-muted">·</span>
-      <span>
-        The Weekender runs Wednesdays → Sunday nights · planning ahead for{" "}
-        <span className="font-semibold text-ink">{week.fridayLabel}</span> →{" "}
-        <span className="font-semibold text-ink">{week.sundayLabel}</span>
-      </span>
-    </p>
-  );
-}
-
-function MoneyBand({ persona }: { persona: WeekenderPersona }) {
-  const venueSpend = totalVenueSpend(persona.stops);
-  const transportSpend = totalTransportSpend(persona.stops);
+function MoneyBand({
+  persona,
+  tierPlan,
+}: {
+  persona: WeekenderPersona;
+  tierPlan: ReturnType<typeof getTierPlan>;
+}) {
+  const venueSpend = totalVenueSpend(tierPlan.stops);
+  const transportSpend = totalTransportSpend(tierPlan.stops);
   const currency = persona.currency;
   return (
     <section className="border-y-2 border-ink bg-paper py-8" aria-label="Weekend budget">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            Stated budget — all-in
+            Stated budget — {tierPlan.label} tier
           </p>
           <p className="font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
-            {formatMoney(persona.budgetMin, currency)}
+            {formatMoney(tierPlan.budgetMin, currency)}
             <span className="mx-2 text-muted">–</span>
-            {formatMoney(persona.budgetMax, currency)}
+            {formatMoney(tierPlan.budgetMax, currency)}
           </p>
           <p className="mt-2 text-sm text-muted">
-            {persona.label} lens · {persona.stops.length} vetted stops
+            {persona.label} lens ({tierPlan.label}) · {tierPlan.stops.length} vetted stops
           </p>
         </div>
         <p className="max-w-xs text-sm leading-6 text-muted">
           Every stop below lists its Venue Spend — the actual on-site expense — and a
           separate Transport / Bolt estimate. Nothing hidden, nothing folded into a
-          vague “misc”.
+          vague &ldquo;misc&rdquo;.
         </p>
       </div>
       <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-stretch md:gap-5">
@@ -170,7 +153,7 @@ function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
 
         <div className="mt-3 rounded-xl border border-accent/30 bg-accent-soft px-4 py-3">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-            Why this spot fits
+            Why it fits this weekend
           </p>
           <p className="mt-1 text-sm leading-6 text-ink/90">{stop.fits}</p>
         </div>
@@ -201,10 +184,16 @@ function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
   );
 }
 
-function SharePoster({ persona }: { persona: WeekenderPersona }) {
+function SharePoster({
+  persona,
+  tierPlan,
+}: {
+  persona: WeekenderPersona;
+  tierPlan: ReturnType<typeof getTierPlan>;
+}) {
   const week = getDropWeek();
-  const budget = `${formatMoney(persona.budgetMin, persona.currency)}–${formatMoney(
-    persona.budgetMax,
+  const budget = `${formatMoney(tierPlan.budgetMin, persona.currency)}–${formatMoney(
+    tierPlan.budgetMax,
     persona.currency,
   )}`;
   return (
@@ -214,13 +203,13 @@ function SharePoster({ persona }: { persona: WeekenderPersona }) {
     >
       <div className="rounded-xl border-2 border-dashed border-ink/25 bg-foreground/5 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          OffDays · The Weekender · Abuja
+          OffDays · The Weekender · Abuja · {tierPlan.label} tier
         </p>
         <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl">
           {persona.title}
         </p>
         <p className="mt-2 text-sm text-muted">
-          {budget} · {persona.stops.length} stops · planning {week.fridayLabel} →{" "}
+          {budget} · {tierPlan.stops.length} stops · planning {week.fridayLabel} →{" "}
           {week.sundayLabel} · your city figured out.
         </p>
       </div>
@@ -228,27 +217,40 @@ function SharePoster({ persona }: { persona: WeekenderPersona }) {
         title={persona.title}
         profile={persona.profile}
         budget={budget}
-        stopsCount={persona.stops.length}
+        stopsCount={tierPlan.stops.length}
         slug={persona.slug}
+        tier={tierPlan.id}
       />
     </section>
   );
 }
 
-export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
-  const days = groupStops(persona.stops);
-  const mins = totalDwell(persona.stops);
+export function WeekenderGuide({
+  persona,
+  tierId,
+}: {
+  persona: WeekenderPersona;
+  tierId?: BudgetTierId;
+}) {
+  const tierPlan = getTierPlan(persona, tierId);
+  const days = groupStops(tierPlan.stops);
+  const mins = totalDwell(tierPlan.stops);
 
   return (
     <article className="flex flex-col gap-10">
-      <section className="flex flex-col gap-10 border-b-2 border-ink pb-10 pt-8">
+      <section className="flex flex-col gap-8 border-b-2 border-ink pb-10 pt-8">
         <div className="flex items-center justify-between gap-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
             OffDays · The Weekender · Abuja
           </p>
-          <p className="rounded-full border border-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
-            {persona.label}
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border border-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
+              {persona.label}
+            </span>
+            <span className="rounded-full bg-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-paper">
+              {tierPlan.label}
+            </span>
+          </div>
         </div>
         <header className="max-w-2xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-accent">
@@ -261,7 +263,7 @@ export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
         </header>
         <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
           <p className="text-sm text-muted">
-            <span className="mr-2 font-semibold text-ink">{persona.stops.length}</span>
+            <span className="mr-2 font-semibold text-ink">{tierPlan.stops.length}</span>
             vetted stops
           </p>
           <p className="text-sm text-muted">
@@ -273,11 +275,13 @@ export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
             two nights
           </p>
         </div>
-        <PersonaSwitcher active={persona.slug} />
-        <AvailabilityRibbon />
+        <div className="flex flex-col gap-3">
+          <PersonaSwitcher active={persona.slug} />
+          <TierSwitcher activeTier={tierPlan.id} personaSlug={persona.slug} />
+        </div>
       </section>
 
-      <MoneyBand persona={persona} />
+      <MoneyBand persona={persona} tierPlan={tierPlan} />
 
       <section aria-label="Scheduled itinerary">
         {days.map((day) => (
@@ -291,9 +295,9 @@ export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
             <ol>
               {day.stops.map((stop) => (
                 <StopCard
-                  key={stop.venue}
+                  key={`${stop.venue}-${stop.startTime}`}
                   stop={stop}
-                  index={persona.stops.indexOf(stop)}
+                  index={tierPlan.stops.indexOf(stop)}
                 />
               ))}
             </ol>
@@ -301,7 +305,7 @@ export function WeekenderGuide({ persona }: { persona: WeekenderPersona }) {
         ))}
       </section>
 
-      <SharePoster persona={persona} />
+      <SharePoster persona={persona} tierPlan={tierPlan} />
     </article>
   );
 }
