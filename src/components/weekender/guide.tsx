@@ -81,7 +81,7 @@ function MoneyBand({
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            Stated budget — {tierPlan.label} tier
+            Stated budget — {persona.hasTiers ? `${tierPlan.label} tier` : "Inherently affordable"}
           </p>
           <p className="font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
             {formatMoney(tierPlan.budgetMin, currency)}
@@ -89,7 +89,7 @@ function MoneyBand({
             {formatMoney(tierPlan.budgetMax, currency)}
           </p>
           <p className="mt-2 text-sm text-muted">
-            {persona.label} lens ({tierPlan.label}) · {tierPlan.stops.length} vetted stops
+            {persona.label} lens {persona.hasTiers ? `(${tierPlan.label})` : ""} · {tierPlan.stops.length} vetted stops
           </p>
         </div>
         <p className="max-w-xs text-sm leading-6 text-muted">
@@ -203,7 +203,7 @@ function SharePoster({
     >
       <div className="rounded-xl border-2 border-dashed border-ink/25 bg-foreground/5 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          OffDays · The Weekender · Abuja · {tierPlan.label} tier
+          OffDays · The Weekender · Abuja · {persona.hasTiers ? `${tierPlan.label} tier` : "Budget option"}
         </p>
         <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl">
           {persona.title}
@@ -247,9 +247,11 @@ export function WeekenderGuide({
             <span className="rounded-full border border-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
               {persona.label}
             </span>
-            <span className="rounded-full bg-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-paper">
-              {tierPlan.label}
-            </span>
+            {persona.hasTiers && (
+              <span className="rounded-full bg-ink px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-paper">
+                {tierPlan.label}
+              </span>
+            )}
           </div>
         </div>
         <header className="max-w-2xl">
@@ -277,7 +279,7 @@ export function WeekenderGuide({
         </div>
         <div className="flex flex-col gap-3">
           <PersonaSwitcher active={persona.slug} />
-          <TierSwitcher activeTier={tierPlan.id} personaSlug={persona.slug} />
+          <TierSwitcher activeTier={tierPlan.id} persona={persona} />
         </div>
       </section>
 

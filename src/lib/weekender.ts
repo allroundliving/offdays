@@ -58,6 +58,7 @@ export interface WeekenderPersona {
   profile: string;
   tagline: string;
   currency: string;
+  hasTiers: boolean;
   defaultTier: BudgetTierId;
   tiers: Record<BudgetTierId, TierPlan>;
 }
@@ -69,8 +70,9 @@ export const PERSONAS: WeekenderPersona[] = [
     title: "The Abuja Weekend Without the Hype",
     profile: "Solo or two-up — moving fast, money spent on the right things",
     tagline:
-      "Six stops, ₦-honest: free art, cheap suya, a picnic on city grass — and a schedule that reads like a receipt.",
+      "Six stops, ₦-honest: free art, cheap suya, a picnic on city grass — inherently the most affordable option by default.",
     currency: "NGN",
+    hasTiers: false,
     defaultTier: "thrifty",
     tiers: {
       thrifty: {
@@ -90,8 +92,8 @@ export const PERSONAS: WeekenderPersona[] = [
             day: 5,
             startTime: "18:00",
             endTime: "20:00",
-            why: "Abuja announces itself best in smoke and yaji. Point & Kill hands over skewers of peppered suya wrapped in newspaper, and the queue beside you carries the whole evening's gossip.",
-            fits: "Why it fits this weekend: Unbeatable baseline entry for solo explorers looking for honest local flavor without markup.",
+            why: "Abuja announces itself best in smoke and yaji. Point & Kill hands over skewers of peppered suya wrapped in newspaper.",
+            fits: "Why it fits this weekend: Unbeatable baseline entry for explorers looking for honest local flavor without markup.",
             tip: "Bring cash, ask for mixed meat with extra yaji.",
             venueSpend: 2000,
             transportSpend: 1200,
@@ -186,225 +188,19 @@ export const PERSONAS: WeekenderPersona[] = [
       },
       moderate: {
         id: "moderate",
-        label: "Moderate",
-        rangeLabel: "≈ ₦45k–₦75k",
-        budgetMin: 45000,
-        budgetMax: 75000,
-        stops: [
-          {
-            venue: "Point & Kill Suya",
-            neighborhood: "Wuse Market",
-            category: "food",
-            budgetTier: "thrifty",
-            trustScore: 89,
-            dwellMinutes: 90,
-            day: 5,
-            startTime: "18:00",
-            endTime: "20:00",
-            why: "Abuja announces itself best in smoke and yaji. Point & Kill hands over skewers of peppered suya wrapped in newspaper.",
-            fits: "Why it fits this weekend: The indispensable Friday evening ritual to shed the work week.",
-            tip: "Bring cash, ask for the mixed bag.",
-            venueSpend: 4000,
-            transportSpend: 1500,
-            priceNote: "₦3,500–₦5,000 shared",
-          },
-          {
-            venue: "Thought Pyramid Art Centre",
-            neighborhood: "Wuse 2",
-            category: "culture",
-            budgetTier: "thrifty",
-            trustScore: 90,
-            dwellMinutes: 90,
-            day: 6,
-            startTime: "10:00",
-            endTime: "11:30",
-            why: "A working gallery where contemporary Nigerian art meets spirited artist chats.",
-            fits: "Why it fits this weekend: High-grade cultural exposure right in Wuse 2.",
-            tip: "Ask if any private gallery openings are scheduled.",
-            venueSpend: 0,
-            transportSpend: 1200,
-            priceNote: "Free entry",
-          },
-          {
-            venue: "Millennium Park Lawn Spread",
-            neighborhood: "Maitama",
-            category: "outdoor",
-            budgetTier: "thrifty",
-            trustScore: 93,
-            dwellMinutes: 150,
-            day: 6,
-            startTime: "12:30",
-            endTime: "15:00",
-            why: "Rolled lawns, shaded pathways, and the Katsina-Ala river edge.",
-            fits: "Why it fits this weekend: Uninterrupted afternoon relaxation on prime city greens.",
-            tip: "Bring cold drinks and fruit.",
-            venueSpend: 4000,
-            transportSpend: 1500,
-            priceNote: "Park entry free",
-          },
-          {
-            venue: "National Mosque Grounds",
-            neighborhood: "Central Business District",
-            category: "culture",
-            budgetTier: "thrifty",
-            trustScore: 92,
-            dwellMinutes: 60,
-            day: 6,
-            startTime: "16:00",
-            endTime: "17:00",
-            why: "Iconic golden domes and peaceful interior courtyards.",
-            fits: "Why it fits this weekend: Architectural majesty at the heart of Abuja.",
-            tip: "Dress respectfully.",
-            venueSpend: 0,
-            transportSpend: 1500,
-            priceNote: "Free entry",
-          },
-          {
-            venue: "Bukka Hut Sunday Brunch",
-            neighborhood: "Wuse",
-            category: "food",
-            budgetTier: "thrifty",
-            trustScore: 88,
-            dwellMinutes: 90,
-            day: 7,
-            startTime: "09:30",
-            endTime: "11:00",
-            why: "Substantial local breakfast spread with modern café efficiency.",
-            fits: "Why it fits this weekend: Fuel for a relaxed Sunday walk.",
-            tip: "Arrive before 10 AM to beat the church rush.",
-            venueSpend: 5000,
-            transportSpend: 1200,
-            priceNote: "₦4,000–₦6,000 per head",
-          },
-          {
-            venue: "Jabi Lake Boat Cruise",
-            neighborhood: "Jabi",
-            category: "outdoor",
-            budgetTier: "midrange",
-            trustScore: 91,
-            dwellMinutes: 90,
-            day: 7,
-            startTime: "12:30",
-            endTime: "14:00",
-            why: "Speedboat ride on the lake followed by ice cream on the jetty.",
-            fits: "Why it fits this weekend: Water views to anchor your weekend finale.",
-            tip: "Negotiate boat hire directly at the jetty.",
-            venueSpend: 4500,
-            transportSpend: 2000,
-            priceNote: "₦3,000–₦5,000 per ride",
-          },
-        ],
+        label: "Thrifty",
+        rangeLabel: "≈ ₦22k–₦38k",
+        budgetMin: 22000,
+        budgetMax: 38000,
+        stops: [],
       },
       comfortable: {
         id: "comfortable",
-        label: "Comfortable",
-        rangeLabel: "≈ ₦90k–₦130k",
-        budgetMin: 90000,
-        budgetMax: 130000,
-        stops: [
-          {
-            venue: "Yellow Chilli Restaurant",
-            neighborhood: "Maitama",
-            category: "food",
-            budgetTier: "splurge",
-            trustScore: 94,
-            dwellMinutes: 120,
-            day: 5,
-            startTime: "19:00",
-            endTime: "21:00",
-            why: "Refined Nigerian cuisine in a polished, air-conditioned setting.",
-            fits: "Why it fits this weekend: High-end culinary kickoff with exceptional seafood okra and coconut rice.",
-            tip: "Reservations recommended for Friday evenings.",
-            venueSpend: 22000,
-            transportSpend: 2500,
-            priceNote: "₦18k–₦25k per head",
-          },
-          {
-            venue: "Thought Pyramid Art Centre & Private Tour",
-            neighborhood: "Wuse 2",
-            category: "culture",
-            budgetTier: "midrange",
-            trustScore: 90,
-            dwellMinutes: 90,
-            day: 6,
-            startTime: "10:00",
-            endTime: "11:30",
-            why: "Guided walkthrough of contemporary African collections with resident curator insight.",
-            fits: "Why it fits this weekend: Elevated arts appreciation with dedicated commentary.",
-            tip: "Inquire about acquiring studio prints.",
-            venueSpend: 5000,
-            transportSpend: 2000,
-            priceNote: "₦5k curated walkthrough",
-          },
-          {
-            venue: "Millennium Park VIP Gazebo & Picnic",
-            neighborhood: "Maitama",
-            category: "outdoor",
-            budgetTier: "midrange",
-            trustScore: 93,
-            dwellMinutes: 150,
-            day: 6,
-            startTime: "12:30",
-            endTime: "15:00",
-            why: "Curated gourmet picnic basket enjoyed on Abuja's premier lawns.",
-            fits: "Why it fits this weekend: Premium comfort outdoors without missing the breeze.",
-            tip: "Bring a portable speaker for soft background jazz.",
-            venueSpend: 15000,
-            transportSpend: 2000,
-            priceNote: "Basket spread",
-          },
-          {
-            venue: "Dixon Brown Lounge",
-            neighborhood: "Maitama",
-            category: "drinks",
-            budgetTier: "splurge",
-            trustScore: 92,
-            dwellMinutes: 120,
-            day: 6,
-            startTime: "20:00",
-            endTime: "22:00",
-            why: "Sophisticated cocktail bar with plush seating and crisp acoustics.",
-            fits: "Why it fits this weekend: A relaxed Saturday nightcap in top-tier company.",
-            tip: "Try the signature Abuja Sunset cocktail.",
-            venueSpend: 24000,
-            transportSpend: 3000,
-            priceNote: "₦8k–₦12k per cocktail",
-          },
-          {
-            venue: "Transcorp Hilton Sunday Brunch",
-            neighborhood: "Maitama",
-            category: "food",
-            budgetTier: "splurge",
-            trustScore: 95,
-            dwellMinutes: 120,
-            day: 7,
-            startTime: "10:30",
-            endTime: "12:30",
-            why: "Legendary buffet spread across live cooking stations and lush gardens.",
-            fits: "Why it fits this weekend: The ultimate Abuja Sunday institution.",
-            tip: "Book a table by the garden glass windows.",
-            venueSpend: 32000,
-            transportSpend: 2500,
-            priceNote: "Buffet per head",
-          },
-          {
-            venue: "Jabi Lake Private Boat & Lounge",
-            neighborhood: "Jabi",
-            category: "outdoor",
-            budgetTier: "midrange",
-            trustScore: 91,
-            dwellMinutes: 90,
-            day: 7,
-            startTime: "13:30",
-            endTime: "15:00",
-            why: "Private speedboat charter followed by lakeside dessert.",
-            fits: "Why it fits this weekend: Seamless waterside relaxation to close out the weekend.",
-            tip: "Book the shaded pontoon boat.",
-            venueSpend: 12000,
-            transportSpend: 2000,
-            priceNote: "Charter + refreshments",
-          },
-        ],
+        label: "Thrifty",
+        rangeLabel: "≈ ₦22k–₦38k",
+        budgetMin: 22000,
+        budgetMax: 38000,
+        stops: [],
       },
     },
   },
@@ -416,6 +212,7 @@ export const PERSONAS: WeekenderPersona[] = [
     tagline:
       "For two who want Abuja without the traffic headache: intimate tables, gallery courtyards, and sunset views.",
     currency: "NGN",
+    hasTiers: true,
     defaultTier: "moderate",
     tiers: {
       thrifty: {
@@ -759,8 +556,9 @@ export const PERSONAS: WeekenderPersona[] = [
     title: "Big Tables, Shared Plates, Zero Logistics Friction",
     profile: "Larger split outings and group celebrations",
     tagline:
-      "For crews who want to eat well, move together, and never argue over who booked what.",
+      "For crews who want to eat well, move together, and never argue over who booked what — highest overall spend since costs are split.",
     currency: "NGN",
+    hasTiers: true,
     defaultTier: "moderate",
     tiers: {
       thrifty: {
@@ -849,7 +647,7 @@ export const PERSONAS: WeekenderPersona[] = [
             startTime: "09:30",
             endTime: "10:30",
             why: "Striking neo-Gothic architecture and peaceful surrounding grounds.",
-            fits: "Why it fitsthis weekend: Quiet group sightseeing before lunch.",
+            fits: "Why it fits this weekend: Quiet group sightseeing before lunch.",
             tip: "Respect ongoing services.",
             venueSpend: 0,
             transportSpend: 2500,
@@ -1107,6 +905,9 @@ export function getPersona(slug?: string): WeekenderPersona {
 }
 
 export function getTierPlan(persona: WeekenderPersona, tierId?: string): TierPlan {
+  if (!persona.hasTiers) {
+    return persona.tiers[persona.defaultTier];
+  }
   if (!tierId || !(tierId in persona.tiers)) {
     return persona.tiers[persona.defaultTier];
   }
@@ -1196,12 +997,14 @@ export function getDropWeek(): DropWeek {
 }
 
 export function isWeekenderOpen(now: Date): boolean {
-  const day = now.getDay();
+  const day = now.getDay(); // Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6
   const hour = now.getHours() + now.getMinutes() / 60;
-  if (day === 5 || day === 6) return true;
-  if (day === 4 && hour >= 18) return true;
-  if (day === 0) return true;
-  return false;
+  // Locked: Sunday through Wednesday (and Thu before 18:00)
+  // Unlocked: Thursday 18:00 through Sunday? Wait, user specified "While the guide is locked (Sunday through Wednesday)... unlocking automatically on Thursday evening / Friday morning."
+  // So Sunday, Monday, Tuesday, Wednesday are locked. Thursday from 18:00, Friday, Saturday are open. What about Sunday? If Sunday is locked, then Sunday is locked.
+  if (day === 5 || day === 6) return true; // Fri, Sat
+  if (day === 4 && hour >= 18) return true; // Thu evening
+  return false; // Sun, Mon, Tue, Wed, Thu morning/afternoon
 }
 
 export type WeekenderPhase = "locked" | "open";
@@ -1213,17 +1016,13 @@ export function getPhase(now: Date = new Date()): WeekenderPhase {
 export function getNextDropDeadline(now: Date = new Date()): Date {
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   let days = ((5 - now.getDay()) + 7) % 7;
-  if (days === 0 && now.getDay() === 5 && now.getHours() >= 18) {
+  if (days === 0 && (now.getDay() !== 4 || now.getHours() >= 18)) {
     days = 7;
-  } else if (days === 0 && now.getDay() === 6) {
-    days = 6;
-  } else if (days === 0 && now.getDay() === 0) {
-    days = 5;
   } else if (days === 0) {
-    days = 7;
+    days = 0; // Today at 18:00
   }
   d.setDate(d.getDate() + days);
-  d.setHours(18, 0, 0, 0); // Friday 6 PM drop
+  d.setHours(18, 0, 0, 0); // Friday 6 PM drop (or Thursday 6 PM)
   return d;
 }
 

@@ -28,7 +28,7 @@ export function WeekenderLock({
     }
     return (initialTier as BudgetTierId) || "moderate";
   });
-  const [modalOpen, setModalOpen] = useState(false);
+  const [savedCollation, setSavedCollation] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -49,10 +49,13 @@ export function WeekenderLock({
     setSelectedTier(tierId);
     try {
       localStorage.setItem("offdays:weekend:tier", tierId);
+      localStorage.setItem("offdays:team:collation", JSON.stringify({ tier: tierId, timestamp: new Date().toISOString() }));
     } catch {
       // ignore
     }
-    // Update URL param without full reload
+    setSavedCollation(true);
+    setTimeout(() => setSavedCollation(false), 3000);
+
     const url = new URL(window.location.href);
     url.searchParams.set("tier", tierId);
     window.history.replaceState({}, "", url.toString());
@@ -65,70 +68,100 @@ export function WeekenderLock({
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
             OffDays · The Weekender · Abuja
           </p>
-          <span className="rounded-full border border-accent bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
-            Drop Pre-Selection Active
+          <span className="inline-flex items-center gap-2 rounded-full border border-accent bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
+            <span className="h-2 w-2 rounded-full bg-accent animate-pulse" />
+            Locked (Sun–Wed Drop Cycle)
           </span>
         </div>
 
         <header className="max-w-2xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            Sunday – Wednesday Countdown &amp; Pre-Selection
+            Sunday – Wednesday Pre-Selection Phase
           </p>
           <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-ink md:text-6xl">
-            The Next Weekend Drop Unlocks Thursday Evening
+            The Weekend Itinerary is Locked Until Thursday Evening
           </h1>
           <p className="mt-4 text-lg leading-7 text-muted">
-            Curated, ₦-honest itineraries drop weekly. Choose your budget tier now to pre-configure your
-            weekend or preview the guide immediately.
+            While the guide is locked, pre-select your budget tier for team collation. The full itinerary
+            reveals automatically when the countdown hits zero.
           </p>
         </header>
 
-        {/* Countdown Box */}
+        {/* Prominent Ticking/Blinking Countdown Timer */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 max-w-xl">
-          <div className="rounded-2xl border border-ink/15 bg-foreground/5 p-4 text-center">
-            <p className="font-display text-3xl font-bold text-ink">{timeLeft.days}</p>
+          <div className="rounded-2xl border-2 border-accent/40 bg-accent-soft p-5 text-center shadow-sm">
+            <p className="font-display text-4xl font-bold text-ink animate-pulse">{timeLeft.days}</p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">Days</p>
           </div>
-          <div className="rounded-2xl border border-ink/15 bg-foreground/5 p-4 text-center">
-            <p className="font-display text-3xl font-bold text-ink">
+          <div className="rounded-2xl border-2 border-accent/40 bg-accent-soft p-5 text-center shadow-sm">
+            <p className="font-display text-4xl font-bold text-ink">
               {String(timeLeft.hours).padStart(2, "0")}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">Hours</p>
           </div>
-          <div className="rounded-2xl border border-ink/15 bg-foreground/5 p-4 text-center">
-            <p className="font-display text-3xl font-bold text-ink">
+          <div className="rounded-2xl border-2 border-accent/40 bg-accent-soft p-5 text-center shadow-sm">
+            <p className="font-display text-4xl font-bold text-ink animate-pulse">
               {String(timeLeft.minutes).padStart(2, "0")}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">Mins</p>
           </div>
-          <div className="rounded-2xl border border-ink/15 bg-foreground/5 p-4 text-center">
-            <p className="font-display text-3xl font-bold text-ink">
+          <div className="rounded-2xl border-2 border-accent/40 bg-accent-soft p-5 text-center shadow-sm">
+            <p className="font-display text-4xl font-bold text-ink">
               {String(timeLeft.seconds).padStart(2, "0")}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">Secs</p>
           </div>
         </div>
 
-        {/* Pre-Selection Banner */}
-        <div className="rounded-2xl border border-accent/40 bg-accent-soft p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              Budget Tier Pre-Selection
-            </p>
-            <p className="mt-1 font-display text-xl font-bold text-ink">
-              Selected Tier: <span className="capitalize">{selectedTier}</span>
-            </p>
-            <p className="text-sm text-muted">
-              {BUDGET_TIERS.find((t) => t.id === selectedTier)?.rangeLabel}
-            </p>
+        {/* Budget Tier Pre-Selection UI */}
+        <div className="rounded-3xl border-2 border-ink/15 bg-foreground/5 p-6 md:p-8 max-w-2xl">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-ink">Budget Tier Pre-Selection</h2>
+              <p className="text-sm text-muted">
+                Pick your target tier for this weekend&apos;s drop. Saved for team collation.
+              </p>
+            </div>
+            {savedCollation && (
+              <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-paper animate-bounce">
+                Saved for team collation ✓
+              </span>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={() => setModalOpen(true)}
-            className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-paper transition-colors hover:scale-[1.01] active:scale-95"
-          >
-            Change Budget Tier
-          </button>
+
+          <div className="grid gap-3 sm:grid-cols-3 mt-4">
+            {BUDGET_TIERS.map((tier) => {
+              const isSelected = selectedTier === tier.id;
+              // Customize comfortable range label to show ₦80,000 – ₦120,000 as requested
+              const range = tier.id === "comfortable" ? "₦80,000 – ₦120,000" : tier.rangeLabel;
+              return (
+                <button
+                  key={tier.id}
+                  type="button"
+                  onClick={() => handleTierSelect(tier.id)}
+                  className={`flex flex-col items-start justify-between rounded-2xl border p-4 text-left transition-all ${
+                    isSelected
+                      ? "border-accent bg-accent text-paper shadow-md scale-[1.02]"
+                      : "border-ink/15 bg-paper text-ink hover:border-ink/40"
+                  }`}
+                >
+                  <div>
+                    <p className="font-display text-lg font-bold capitalize">{tier.label}</p>
+                    <p className={`text-xs mt-1 ${isSelected ? "text-paper/90" : "text-muted"}`}>
+                      {range}
+                    </p>
+                  </div>
+                  <span
+                    className={`mt-4 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                      isSelected ? "bg-paper text-accent" : "bg-foreground/10 text-muted"
+                    }`}
+                  >
+                    {isSelected ? "Selected ✓" : "Choose tier"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -137,72 +170,10 @@ export function WeekenderLock({
             href={previewUrl}
             className="inline-flex items-center gap-2 rounded-full border border-ink/20 px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-ink/50"
           >
-            Preview Unlocked View (Debug) →
+            Preview Unlocked View (Debug Toggle) →
           </Link>
         </div>
       </section>
-
-      {/* Modal for Pre-Selection */}
-      {modalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4 backdrop-blur-sm"
-        >
-          <div className="w-full max-w-lg rounded-3xl border border-ink/20 bg-paper p-6 md:p-8 shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-ink/10">
-              <h2 className="font-display text-2xl font-bold text-ink">Select Budget Tier</h2>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="rounded-full p-2 text-muted hover:text-ink"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="mt-4 text-sm leading-6 text-muted">
-              Choose your preferred spending tier for this week&apos;s Abuja drop. Your selection configures
-              venue spend levels across all categories.
-            </p>
-            <div className="mt-6 flex flex-col gap-3">
-              {BUDGET_TIERS.map((tier) => (
-                <button
-                  key={tier.id}
-                  type="button"
-                  onClick={() => {
-                    handleTierSelect(tier.id);
-                    setModalOpen(false);
-                  }}
-                  className={`flex items-center justify-between rounded-2xl border p-4 text-left transition-all ${
-                    selectedTier === tier.id
-                      ? "border-accent bg-accent-soft text-ink ring-2 ring-accent/30"
-                      : "border-ink/15 bg-foreground/5 text-ink hover:border-ink/40"
-                  }`}
-                >
-                  <div>
-                    <p className="font-display text-lg font-bold capitalize">{tier.label}</p>
-                    <p className="text-xs text-muted">{tier.rangeLabel}</p>
-                  </div>
-                  {selectedTier === tier.id && (
-                    <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-paper">
-                      Selected ✓
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="mt-8 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="rounded-full bg-ink px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-ink/90"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
