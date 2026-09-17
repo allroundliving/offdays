@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CITY_VENUES, NEIGHBORHOODS, getPopups } from "@/lib/directory";
+import { CITY_VENUES, getVerifiedVenues, NEIGHBORHOODS, getPopups } from "@/lib/directory";
 import { HappeningNow } from "@/components/directory/happening-now";
 import { SearchableDirectory } from "@/components/directory/searchable-directory";
 
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 
 export default function CityPage() {
   const popups = getPopups(new Date());
+  const verifiedVenues = getVerifiedVenues(CITY_VENUES);
+  const pendingCount = CITY_VENUES.filter((v) => v.status === "pending_review").length;
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-6 pb-20 pt-6 md:px-8">
@@ -25,12 +27,22 @@ export default function CityPage() {
           >
             <span aria-hidden="true">←</span> OffDays home
           </Link>
-          <Link
-            href="/weekender?persona=budget"
-            className="text-sm text-muted transition-colors hover:text-ink"
-          >
-            This week&apos;s drop →
-          </Link>
+          <div className="flex items-center gap-4">
+            {pendingCount > 0 && (
+              <Link
+                href="/admin/discovery"
+                className="inline-flex items-center gap-1.5 rounded-full border border-accent/50 bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent hover:text-paper"
+              >
+                AI Discovery Queue ({pendingCount})
+              </Link>
+            )}
+            <Link
+              href="/weekender?persona=budget"
+              className="text-sm text-muted transition-colors hover:text-ink"
+            >
+              This week&apos;s drop →
+            </Link>
+          </div>
         </div>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
           Your City Figured Out · Abuja
@@ -44,8 +56,8 @@ export default function CityPage() {
         </p>
         <div className="flex flex-wrap gap-x-8 gap-y-3">
           <p className="text-sm text-muted">
-            <span className="mr-2 font-semibold text-ink">{CITY_VENUES.length}</span>
-            venues
+            <span className="mr-2 font-semibold text-ink">{verifiedVenues.length}</span>
+            verified venues
           </p>
           <p className="text-sm text-muted">
             <span className="mr-2 font-semibold text-ink">{NEIGHBORHOODS.length}</span>
@@ -59,9 +71,7 @@ export default function CityPage() {
       </header>
 
       <div className="mt-8 rounded-2xl border border-accent/30 bg-accent-soft px-5 py-4 text-sm leading-6 text-ink">
-        Real spots and checked prices — and an honest queue of what is still being
-        verified. Entries below the trust line are flagged, not hidden: that is the
-        directory working, not a bug.
+        Real spots and checked prices — strictly filtering for verified listings. Submissions go through our AI pipeline and internal admin vetting queue before publishing.
       </div>
 
       <section className="mt-10 flex flex-col gap-4">
@@ -75,7 +85,7 @@ export default function CityPage() {
           Time-boxed pop-ups, markets and clinics — surfaced by date and neighborhood,
           nothing that outlives its window.
         </p>
-        <HappeningNow popups={popups} venues={CITY_VENUES} />
+        <HappeningNow popups={popups} venues={verifiedVenues} />
       </section>
 
       <section className="mt-14 flex flex-col gap-4">
@@ -85,7 +95,7 @@ export default function CityPage() {
           </h2>
           <span className="h-px flex-1 bg-ink/10" aria-hidden="true" />
         </div>
-        <SearchableDirectory venues={CITY_VENUES} />
+        <SearchableDirectory venues={verifiedVenues} />
       </section>
     </main>
   );

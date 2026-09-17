@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { DirectoryCategory, TrustStatus, Venue } from "@/lib/directory";
+import type { DirectoryCategory, Venue } from "@/lib/directory";
 import { categoryLabel, TRUST_STATUS_LABEL } from "@/lib/directory";
 
-const TRUST_TONE: Record<TrustStatus, string> = {
+const TRUST_TONE: Record<string, string> = {
   vetted: "bg-ink text-paper",
+  verified: "bg-ink text-paper",
   checking: "bg-accent-soft text-ink",
   flagged: "border border-ink/15 bg-ink/5 text-muted",
+  pending_review: "bg-accent-soft text-accent",
+  rejected: "border border-ink/15 bg-ink/5 text-muted",
 };
 
 const CATEGORY_ACCENT: Record<DirectoryCategory, string> = {
@@ -158,10 +161,12 @@ export function VenueCard({ venue }: { venue: Venue }) {
           {venue.neighborhood} · {categoryLabel(venue.category)}
         </p>
         <p
-          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${TRUST_TONE[venue.status]}`}
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            TRUST_TONE[venue.status] || "bg-ink text-paper"
+          }`}
         >
           <span className="font-display text-sm font-bold">{venue.trustScore}</span>
-          trust · {TRUST_STATUS_LABEL[venue.status]}
+          trust · {TRUST_STATUS_LABEL[venue.status] || venue.status}
         </p>
       </div>
 

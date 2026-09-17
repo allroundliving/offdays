@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { VenueCategory, WeekenderPersona, WeekenderStop, BudgetTierId } from "@/lib/weekender";
 import {
   formatDwell,
@@ -66,6 +69,27 @@ function StopPhoto({ stop, photoId }: { stop: WeekenderStop; photoId: string }) 
   );
 }
 
+function ExecutiveAssistantIntro({ persona }: { persona: WeekenderPersona }) {
+  let toneMsg =
+    "Practical, chill, and completely ₦-honest. No fluff, just the best spots in Wuse and Maitama mapped out for maximum value and zero guesswork.";
+  if (persona.slug === "couples") {
+    toneMsg =
+      "Warm, romantic, and unhurried. Designed for two with good lighting, intimate corners, and zero traffic headaches across Abuja.";
+  } else if (persona.slug === "group") {
+    toneMsg =
+      "High-energy, seamless, and built for crews. Big tables, shared plates, and nightlife coordination so nobody argues over logistics.";
+  }
+
+  return (
+    <div className="rounded-2xl border border-accent/30 bg-accent-soft p-5 md:p-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+        Executive Assistant Briefing · Abuja Playbook
+      </p>
+      <p className="mt-2 text-base leading-7 text-ink/90 font-medium">{toneMsg}</p>
+    </div>
+  );
+}
+
 function MoneyBand({
   persona,
   tierPlan,
@@ -94,8 +118,7 @@ function MoneyBand({
         </div>
         <p className="max-w-xs text-sm leading-6 text-muted">
           Every stop below lists its Venue Spend — the actual on-site expense — and a
-          separate Transport / Bolt estimate. Nothing hidden, nothing folded into a
-          vague &ldquo;misc&rdquo;.
+          separate Bolt / inDrive transit estimate.
         </p>
       </div>
       <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-stretch md:gap-5">
@@ -112,7 +135,7 @@ function MoneyBand({
         </div>
         <div className="flex flex-1 flex-col justify-between gap-2 rounded-xl border border-ink/10 bg-foreground/5 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            Transport / Bolt
+            Transit / Bolt / inDrive
           </p>
           <div>
             <p className="font-display text-3xl font-bold tracking-tight text-ink">
@@ -137,6 +160,14 @@ function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
         <span className="mt-3 h-full w-px bg-ink/15" aria-hidden="true" />
       </div>
       <article className="mb-8 flex-1 rounded-xl border border-ink/10 bg-foreground/5 p-5 md:p-6">
+        {/* In-between Narrative Prompt */}
+        {stop.prepTime && (
+          <div className="mb-4 rounded-lg border border-accent/20 bg-accent-soft/50 px-3.5 py-2.5 text-xs font-medium text-ink">
+            <span className="font-semibold text-accent uppercase tracking-wider mr-2">In-Between Briefing:</span>
+            {stop.prepTime}
+          </div>
+        )}
+
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
           {stop.category} · {stop.neighborhood}
         </p>
@@ -158,6 +189,12 @@ function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
           <p className="mt-1 text-sm leading-6 text-ink/90">{stop.fits}</p>
         </div>
 
+        {stop.hydrationPrompt && (
+          <p className="mt-3 text-xs font-medium text-wellness">
+            💧 <span className="underline">Hydration</span>: {stop.hydrationPrompt}
+          </p>
+        )}
+
         <p className="mt-3 text-sm leading-6 text-muted">
           <span className="mr-1.5 font-semibold uppercase tracking-wider text-accent">Tip</span>
           {stop.tip}
@@ -175,12 +212,57 @@ function StopCard({ stop, index }: { stop: WeekenderStop; index: number }) {
             <span className="font-semibold">{formatMoney(stop.venueSpend, "NGN")}</span>
           </p>
           <p className="text-sm text-ink">
-            <span className="mr-1.5 text-muted">Transport / Bolt</span>
+            <span className="mr-1.5 text-muted">Transit ({stop.transitMode || "Bolt"})</span>
             <span className="font-semibold">{formatMoney(stop.transportSpend, "NGN")}</span>
+            <span className="block text-[11px] text-muted">Est. {stop.fareEstimate || "₦1,500 – ₦3,500"}</span>
           </p>
         </div>
       </article>
     </li>
+  );
+}
+
+function FeedbackBlock() {
+  const [voted, setVoted] = useState<"up" | "down" | null>(null);
+
+  return (
+    <section className="mt-12 rounded-2xl border border-ink/15 bg-foreground/5 p-6 md:p-8 text-center">
+      <h3 className="font-display text-2xl font-bold text-ink">
+        How was your weekend? Did you enjoy this playbook?
+      </h3>
+      <p className="mt-2 text-sm text-muted">
+        Your feedback refines next weekend&apos;s drop and keeps our directory honest.
+      </p>
+      <div className="mt-6 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          onClick={() => setVoted("up")}
+          className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold transition-transform hover:scale-105 active:scale-95 ${
+            voted === "up"
+              ? "border-accent bg-accent text-paper shadow-md"
+              : "border-ink/20 bg-paper text-ink"
+          }`}
+        >
+          <span>👍</span> Yes, loved it
+        </button>
+        <button
+          type="button"
+          onClick={() => setVoted("down")}
+          className={`inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm font-semibold transition-transform hover:scale-105 active:scale-95 ${
+            voted === "down"
+              ? "border-ink bg-ink text-paper shadow-md"
+              : "border-ink/20 bg-paper text-ink"
+          }`}
+        >
+          <span>👎</span> Needs tuning
+        </button>
+      </div>
+      {voted && (
+        <p className="mt-4 text-xs font-semibold text-accent animate-fadeIn">
+          Thank you! Feedback recorded for team collation.
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -196,6 +278,8 @@ function SharePoster({
     tierPlan.budgetMax,
     persona.currency,
   )}`;
+  const title = persona.hasTiers ? `${tierPlan.label} ${persona.label} Abuja Weekend` : `Thrifty Abuja Weekend`;
+
   return (
     <section
       aria-label="Share this drop"
@@ -203,24 +287,33 @@ function SharePoster({
     >
       <div className="rounded-xl border-2 border-dashed border-ink/25 bg-foreground/5 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          OffDays · The Weekender · Abuja · {persona.hasTiers ? `${tierPlan.label} tier` : "Budget option"}
+          OffDays · The Weekender · Abuja · Executive Assistant Playbook
         </p>
         <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink md:text-4xl">
-          {persona.title}
+          {title}
         </p>
         <p className="mt-2 text-sm text-muted">
           {budget} · {tierPlan.stops.length} stops · planning {week.fridayLabel} →{" "}
           {week.sundayLabel} · your city figured out.
         </p>
       </div>
-      <ShareButton
-        title={persona.title}
-        profile={persona.profile}
-        budget={budget}
-        stopsCount={tierPlan.stops.length}
-        slug={persona.slug}
-        tier={tierPlan.id}
-      />
+      <div className="flex flex-col sm:flex-row gap-3">
+        <ShareButton
+          title={title}
+          profile={persona.profile}
+          budget={budget}
+          stopsCount={tierPlan.stops.length}
+          slug={persona.slug}
+          tier={tierPlan.id}
+        />
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/20 bg-paper px-6 py-3 text-sm font-semibold text-ink transition-transform hover:scale-[1.02] active:scale-95 no-print"
+        >
+          📥 Download PDF
+        </button>
+      </div>
     </section>
   );
 }
@@ -235,6 +328,7 @@ export function WeekenderGuide({
   const tierPlan = getTierPlan(persona, tierId);
   const days = groupStops(tierPlan.stops);
   const mins = totalDwell(tierPlan.stops);
+  const dynamicTitle = persona.hasTiers ? `${tierPlan.label} ${persona.label} Abuja Weekend` : `Thrifty Abuja Weekend`;
 
   return (
     <article className="flex flex-col gap-10">
@@ -254,15 +348,19 @@ export function WeekenderGuide({
             )}
           </div>
         </div>
+
         <header className="max-w-2xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-accent">
             {persona.profile}
           </p>
           <h1 className="font-display text-5xl font-bold leading-[0.95] tracking-tight text-ink md:text-7xl">
-            {persona.title}
+            {dynamicTitle}
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-muted">{persona.tagline}</p>
         </header>
+
+        <ExecutiveAssistantIntro persona={persona} />
+
         <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
           <p className="text-sm text-muted">
             <span className="mr-2 font-semibold text-ink">{tierPlan.stops.length}</span>
@@ -277,6 +375,7 @@ export function WeekenderGuide({
             two nights
           </p>
         </div>
+
         <div className="flex flex-col gap-3">
           <PersonaSwitcher active={persona.slug} />
           <TierSwitcher activeTier={tierPlan.id} persona={persona} />
@@ -306,6 +405,8 @@ export function WeekenderGuide({
           </div>
         ))}
       </section>
+
+      <FeedbackBlock />
 
       <SharePoster persona={persona} tierPlan={tierPlan} />
     </article>
