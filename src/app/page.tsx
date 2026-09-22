@@ -36,7 +36,7 @@ export default async function Home({
       </header>
 
       {!personaData ? (
-        // Screen 1: Initial Mount — Tagline immediately above 3 persona choice buttons (no Next button gating)
+        // Screen 1: Initial Mount — Tagline immediately above 3 persona choice buttons (no Next button gating, full width mobile touch targets)
         <section className="mt-8 flex flex-col gap-6" aria-live="polite">
           <div className="flex flex-col gap-2">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
@@ -50,12 +50,12 @@ export default async function Home({
             </p>
           </div>
 
-          <div className="grid gap-3.5 mt-2">
+          <div className="grid w-full gap-3.5 mt-2">
             {PERSONAS.map((p) => (
               <Link
                 key={p.id}
                 href={`/?persona=${p.id}`}
-                className="group rounded-2xl border border-ink/15 bg-foreground/5 p-5 transition-all hover:border-ink hover:bg-accent-soft/30"
+                className="group w-full rounded-2xl border border-ink/15 bg-foreground/5 p-5 transition-all hover:border-ink hover:bg-accent-soft/30 active:scale-98"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-display text-xl font-bold text-ink group-hover:text-accent transition-colors">
@@ -103,13 +103,13 @@ export default async function Home({
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Link
               href="/weekender?persona=budget"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-paper transition-transform hover:scale-[1.01] active:scale-95"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-paper transition-transform hover:scale-[1.01] active:scale-95 text-center"
             >
               Let&apos;s Go: View This Week&apos;s Drop →
             </Link>
             <Link
               href="/city"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/20 px-7 py-3.5 text-sm font-medium text-ink transition-colors hover:border-ink"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/20 px-7 py-3.5 text-sm font-medium text-ink transition-colors hover:border-ink text-center"
             >
               Explore City Directory
             </Link>
